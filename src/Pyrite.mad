@@ -1,0 +1,45 @@
+import type { Wish } from "Wish"
+
+import FilePath from "FilePath"
+import Fn from "Function"
+import List from "List"
+import Test from "Test"
+
+import Exec from "study/Cli"
+
+import Snap from "@/Snapshot"
+import _String from "@/String"
+
+
+
+createSnapshotWithBaseAndTransformer :: (String -> String)
+  -> String
+  -> ({} -> String)
+  -> String
+  -> Snap.Snapshot
+export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera, key) => pipe(
+  _String.slug,
+  List.append($, [basePath]),
+  FilePath.joinPath,
+  pathTransformer,
+  Snap.create($, camera()),
+)(key)
+export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
+export panhandle = createRecorder
+
+// type PyriteMode = Exists(String) | NewThing(String)
+/**
+import Pyrite from "Pyrite"
+import MyLibrary from "@/MyLibrary"
+
+createSnapshot = Pyrite.createRecorder("/golden")
+
+snapshot = createSnapshot(
+  "snapshotName",
+  MyLibrary.functionThatProducesAStringOutput,
+)
+
+
+
+
+ */

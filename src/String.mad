@@ -1,0 +1,11 @@
+import String from "String"
+
+
+
+NON_WORD_AND_SPACES = "[\\W\\s]"
+slug :: String -> String
+export slug = pipe(
+  String.trim,
+  String.toLower,
+  String.replace(NON_WORD_AND_SPACES, "-"),
+)

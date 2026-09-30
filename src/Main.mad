@@ -1,0 +1,12 @@
+import IO from "IO"
+
+import Pyrite from "@/Pyrite"
+
+
+
+main = () => {
+  pipe(
+    Pyrite.createRecorder($, () => "saved!", "record of note"),
+    IO.pTrace("This is a snapshot:"),
+  )("/golden")
+}

@@ -1,0 +1,55 @@
+import File from "File"
+import FilePath from "FilePath"
+import Fn from "Function"
+import String from "String"
+import Wish from "Wish"
+
+
+
+export type Snapshot = Snapshot(String, String)
+export create = Snapshot
+path :: Snapshot -> String
+export path = where {
+  Snapshot(p, _) =>
+    p
+}
+body :: Snapshot -> String
+export body = where {
+  Snapshot(_, b) =>
+    b
+}
+setPath :: String -> Snapshot -> Snapshot
+export setPath = (p, sn) => where(sn) {
+  Snapshot(_, x) =>
+    Snapshot(p, x)
+}
+setBody :: String -> Snapshot -> Snapshot
+export setBody = (b, sn) => where(sn) {
+  Snapshot(p, _) =>
+    Snapshot(p, b)
+}
+// binary function application
+modbod :: (String -> String -> a) -> String -> Snapshot -> a
+modbod = (fn, x, y) => pipe(
+  body,
+  fn(x),
+)(y)
+equals :: String -> Snapshot -> Boolean
+export equals = modbod(Fn.equals)
+type FoolsError = CannotWrite | CannotRead
+toFileWithPathing :: (String -> String) -> Snapshot -> Wish FoolsError {}
+export toFileWithPathing = (processFilename, x) => where(x) {
+  Snapshot(p, b) =>
+    pipe(
+      processFilename,
+      File.write($, b),
+      Wish.mapRej(Fn.always(CannotWrite)),
+    )(p)
+}
+export toFile = toFileWithPathing(Fn.identity)
+fileEquals :: String -> Snapshot -> Wish FoolsError Boolean
+export fileEquals = (pth, snap) => pipe(
+  File.read,
+  Wish.mapRej(Fn.always(CannotRead)),
+  map(equals($, snap)),
+)(pth)
