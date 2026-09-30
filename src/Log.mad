@@ -1,0 +1,35 @@
+/* ★★★ pyrite@0.0.1 ★★★
+ * THIS FILE AUTOMATICALLY GENERATED FROM SOURCE: pyrite.clown-car
+ */
+
+import Party from "PartyBus"
+
+
+
+export tags = {
+  pyrite: Party.tag("pyrite"),
+  snapshot: Party.tagWithScope("pyrite", ["snapshot"]),
+  snapshotGood: Party.tagWithScope("pyrite", ["snapshot", "good"]),
+  snapshotBad: Party.tagWithScope("pyrite", ["snapshot", "bad"]),
+  processor: Party.tagWithScope("pyrite", ["processor"]),
+  processorDetail: Party.tagWithScope("pyrite", ["processor", "detail"]),
+  test: Party.tagWithScope("pyrite", ["test"]),
+}
+export env = {
+  pyrite: Party.env(tags.pyrite),
+  snapshot: Party.env(tags.snapshot),
+  snapshotGood: Party.env(tags.snapshotGood),
+  snapshotBad: Party.env(tags.snapshotBad),
+  processor: Party.env(tags.processor),
+  processorDetail: Party.env(tags.processorDetail),
+  test: Party.env(tags.test),
+}
+export tapped = {
+  pyrite: Party.tap(env.pyrite),
+  snapshot: Party.tap(env.snapshot),
+  snapshotGood: Party.tap(env.snapshotGood),
+  snapshotBad: Party.tap(env.snapshotBad),
+  processor: Party.tap(env.processor),
+  processorDetail: Party.tap(env.processorDetail),
+  test: Party.tap(env.test),
+}

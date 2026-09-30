@@ -4,6 +4,8 @@ import Fn from "Function"
 import String from "String"
 import Wish from "Wish"
 
+import Log from "@/Log"
+
 
 
 export type Snapshot = Snapshot(String, String)
@@ -42,8 +44,15 @@ export toFileWithPathing = (processFilename, x) => where(x) {
   Snapshot(p, b) =>
     pipe(
       processFilename,
+      Log.env.snapshot("writing to path"),
       File.write($, b),
-      Wish.mapRej(Fn.always(CannotWrite)),
+      map(Log.env.snapshotGood("hooray")),
+      Wish.mapRej(
+        pipe(
+          Log.env.snapshotBad("fail to write"),
+          Fn.always(CannotWrite),
+        ),
+      ),
     )(p)
 }
 export toFile = toFileWithPathing(Fn.identity)

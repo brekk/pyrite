@@ -7,11 +7,14 @@ import Test from "Test"
 
 import Exec from "study/Cli"
 
+import Log from "@/Log"
 import Snap from "@/Snapshot"
 import _String from "@/String"
 
 
 
+export type PanHandle = Unseen | Inspected(String)
+export type Framed = Framed(PanHandle, Snap.Snapshot)
 createSnapshotWithBaseAndTransformer :: (String -> String)
   -> String
   -> ({} -> String)
@@ -22,12 +25,13 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera
   List.append($, [basePath]),
   FilePath.joinPath,
   pathTransformer,
+  Log.env.processorDetail("path processed"),
   Snap.create($, camera()),
+  Log.env.processorDetail("snapshot"),
 )(key)
 export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
 export panhandle = createRecorder
 
-// type PyriteMode = Exists(String) | NewThing(String)
 /**
 import Pyrite from "Pyrite"
 import MyLibrary from "@/MyLibrary"

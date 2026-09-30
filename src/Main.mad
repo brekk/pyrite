@@ -1,12 +1,24 @@
 import IO from "IO"
+import Wish from "Wish"
 
+import Log from "@/Log"
 import Pyrite from "@/Pyrite"
+import Snapshot from "@/Snapshot"
 
 
 
 main = () => {
   pipe(
     Pyrite.createRecorder($, () => "saved!", "record of note"),
-    IO.pTrace("This is a snapshot:"),
-  )("/golden")
+    Snapshot.toFile,
+    Wish.fulfill(
+      pipe(
+        show,
+        IO.put,
+      ),
+      (raw) => {
+        Log.env.processor("raw", raw)
+      },
+    ),
+  )("./golden")
 }
