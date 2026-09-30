@@ -15,7 +15,7 @@ hooks = [
     entry="bash -c 'for x in \"$@\"; do madlib format -i \"$x\" --fix; done' --",
     language="system",
     files = "\\.mad$"
-  }
+  },
   {
     id ="madlib-readme",
     name="madlib readme",
