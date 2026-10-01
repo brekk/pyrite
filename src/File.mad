@@ -1,0 +1,28 @@
+import type { CommandResult } from "Process"
+
+import Dir from "Directory"
+import File from "File"
+import Path from "FilePath"
+import Fn from "Function"
+import Wish from "Wish"
+
+
+
+writeFileWithRecursivePath :: Boolean -> String -> String -> Wish String String
+export writeFileWithRecursivePath = (recursive, filePath, body) => pipe(
+  Path.parentPath,
+  Dir.create($, { recursive }),
+  Wish.mapRej(Fn.always("Unable to create directory")),
+  chain(
+    (_) => pipe(
+      File.write(filePath),
+      Wish.mapRej(Fn.always("Unable to write file")),
+    )(body),
+  ),
+  map(Fn.always(body)),
+)(filePath)
+export writeFile = writeFileWithRecursivePath(true)
+export exists = pipe(
+  File.exists,
+  Wish.chainRej(Fn.always(Wish.good(false))),
+)

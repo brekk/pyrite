@@ -1,13 +1,16 @@
 import File from "File"
 import FilePath from "FilePath"
 import Fn from "Function"
+import Monad from "Monad"
 import String from "String"
 import Wish from "Wish"
 
+import _File from "@/File"
 import Log from "@/Log"
 
 
 
+type Existence = NotYetReal | Real(String)
 export type Snapshot = Snapshot(String, String)
 export create = Snapshot
 path :: Snapshot -> String
@@ -39,13 +42,13 @@ modbod = (fn, x, y) => pipe(
 equals :: String -> Snapshot -> Boolean
 export equals = modbod(Fn.equals)
 type FoolsError = CannotWrite | CannotRead
-toFileWithPathing :: (String -> String) -> Snapshot -> Wish FoolsError {}
-export toFileWithPathing = (processFilename, x) => where(x) {
+toFile :: Snapshot -> Wish FoolsError Boolean
+export toFile = where {
   Snapshot(p, b) =>
     pipe(
-      processFilename,
-      Log.env.snapshot("writing to path"),
-      File.write($, b),
+      Log.env.snapshot("toFile: writing to path"),
+      _File.writeFile($, b),
+      map(Fn.always(true)),
       map(Log.env.snapshotGood("hooray")),
       Wish.mapRej(
         pipe(
@@ -55,10 +58,40 @@ export toFileWithPathing = (processFilename, x) => where(x) {
       ),
     )(p)
 }
-export toFile = toFileWithPathing(Fn.identity)
+// export toFile = toFileWithPathing(Fn.identity)
 fileEquals :: String -> Snapshot -> Wish FoolsError Boolean
-export fileEquals = (pth, snap) => pipe(
-  File.read,
-  Wish.mapRej(Fn.always(CannotRead)),
-  map(equals($, snap)),
-)(pth)
+export fileEquals = (bod, snap) => pipe(
+  path,
+  _File.exists,
+  map(Log.env.snapshotGood("exists?")),
+  chain(
+    (yes) => yes
+      ? pipe(
+        path,
+        Log.env.snapshotGood("path"),
+        File.read,
+        map(Log.env.snapshotGood("reading file")),
+        Wish.mapRej(Fn.always(CannotRead)),
+        map(Fn.equals(bod)),
+      )(snap)
+      : Wish.good(false),
+  ),
+  map(Log.env.snapshotGood("file equals")),
+)(snap)
+// the core functionality of our module
+resnap :: Snapshot -> Wish FoolsError Boolean
+export resnap = (snap) => do {
+  exists <- _File.exists(path(snap))
+  matches <- fileEquals(body(snap), snap)
+  return if (!exists) {
+    pipe(
+      toFile,
+      map(Log.env.snapshot("doesn't yet exist")),
+    )(snap)
+  } else {
+    pipe(
+      Wish.good,
+      map(Log.env.snapshotGood("doesn't match")),
+    )(false)
+  }
+}
