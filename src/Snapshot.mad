@@ -68,15 +68,12 @@ export fileEquals = (bod, snap) => pipe(
     (yes) => yes
       ? pipe(
         path,
-        Log.env.snapshotGood("path"),
         File.read,
-        map(Log.env.snapshotGood("reading file")),
         Wish.mapRej(Fn.always(CannotRead)),
         map(Fn.equals(bod)),
       )(snap)
       : Wish.good(false),
   ),
-  map(Log.env.snapshotGood("file equals")),
 )(snap)
 // the core functionality of our module
 resnap :: Snapshot -> Wish FoolsError Boolean
@@ -90,8 +87,9 @@ export resnap = (snap) => do {
     )(snap)
   } else {
     pipe(
+      Log.env.snapshot("matches"),
       Wish.good,
-      map(Log.env.snapshotGood("doesn't match")),
-    )(false)
+      map(Log.env.snapshotGood("identical to the existing!")),
+    )(matches)
   }
 }

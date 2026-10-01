@@ -9,7 +9,7 @@ import Snapshot from "@/Snapshot"
 
 main = () => {
   pipe(
-    Pyrite.createRecorder($, () => "saved!", "record of note"),
+    Pyrite.createRecorder($, () => "saved222!", "record of note"),
     Snapshot.resnap,
     Wish.fulfill(
       pipe(
