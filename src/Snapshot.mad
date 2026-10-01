@@ -3,7 +3,10 @@ import FilePath from "FilePath"
 import Fn from "Function"
 import Monad from "Monad"
 import String from "String"
+import Test from "Test"
 import Wish from "Wish"
+
+import Study from "Study"
 
 import _File from "@/File"
 import Log from "@/Log"
@@ -79,6 +82,7 @@ export fileEquals = (bod, snap) => pipe(
 resnap :: Snapshot -> Wish FoolsError Boolean
 export resnap = (snap) => do {
   exists <- _File.exists(path(snap))
+  // THIS IS INVALID: body(snap) will always be the same outcome
   matches <- fileEquals(body(snap), snap)
   return if (!exists) {
     pipe(
@@ -92,4 +96,16 @@ export resnap = (snap) => do {
       map(Log.env.snapshotGood("identical to the existing!")),
     )(matches)
   }
+}
+export testSnapshot = (snap) => {
+  return Test.test(
+    "pyrite: " ++ path(snap) ++ " does not match snapshot",
+    () => do {
+      snapshotValid <- pipe(
+        resnap,
+        Wish.mapRej(Fn.always(Test.ErrorWithMessage("Unable to load snapshot"))),
+      )(snap)
+      return Test.assertEquals(true, snapshotValid)
+    },
+  )
 }

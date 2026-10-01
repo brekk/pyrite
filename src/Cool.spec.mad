@@ -1,0 +1,7 @@
+import Pyrite from "@/Pyrite"
+import Snapshot from "@/Snapshot"
+
+
+
+snapshotter = Pyrite.createRecorder("./golden")
+Snapshot.testSnapshot(snapshotter(() => "saved!", "record of note"))
