@@ -49,13 +49,17 @@ toFile :: Snapshot -> Wish FoolsError Boolean
 export toFile = where {
   Snapshot(p, b) =>
     pipe(
-      Log.env.snapshot("toFile: writing to path"),
+      Log.env.snapshot("toFile"),
       _File.writeFile($, b),
-      map(Fn.always(true)),
-      map(Log.env.snapshotGood("hooray")),
+      map(
+        pipe(
+          Fn.always(true),
+          Log.env.snapshotGood("matched"),
+        ),
+      ),
       Wish.mapRej(
         pipe(
-          Log.env.snapshotBad("fail to write"),
+          Log.env.snapshotBad("failed to write"),
           Fn.always(CannotWrite),
         ),
       ),
@@ -78,23 +82,27 @@ export fileEquals = (bod, snap) => pipe(
       : Wish.good(false),
   ),
 )(snap)
+sourceOfFileMatchesSnap = (bod, snap) => pipe(
+  path,
+  File.read,
+  Wish.mapRej(Fn.always(CannotRead)),
+  map(Fn.equals(bod)),
+)(snap)
 // the core functionality of our module
 resnap :: Snapshot -> Wish FoolsError Boolean
 export resnap = (snap) => do {
+  bod = pipe(
+    body,
+    // File.write adds a trailing newline, apparently
+    mappend($, "\n"),
+  )(snap)
   exists <- _File.exists(path(snap))
-  // THIS IS INVALID: body(snap) will always be the same outcome
-  matches <- fileEquals(body(snap), snap)
+  matches <- sourceOfFileMatchesSnap(bod, snap)
+  matches2 <- fileEquals(bod, snap)
   return if (!exists) {
-    pipe(
-      toFile,
-      map(Log.env.snapshot("doesn't yet exist")),
-    )(snap)
+    Log.env.snapshot("doesn't exist, toFile it", toFile(snap))
   } else {
-    pipe(
-      Log.env.snapshot("matches"),
-      Wish.good,
-      map(Log.env.snapshotGood("identical to the existing!")),
-    )(matches)
+    Wish.good(matches || matches2)
   }
 }
 export testSnapshot = (snap) => {
@@ -103,7 +111,12 @@ export testSnapshot = (snap) => {
     () => do {
       snapshotValid <- pipe(
         resnap,
-        Wish.mapRej(Fn.always(Test.ErrorWithMessage("Unable to load snapshot"))),
+        Wish.mapRej(
+          pipe(
+            Log.env.snapshotBad("post resnap, eat your heart out thanos"),
+            Fn.always(Test.ErrorWithMessage("Unable to load snapshot")),
+          ),
+        ),
       )(snap)
       return Test.assertEquals(true, snapshotValid)
     },

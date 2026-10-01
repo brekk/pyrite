@@ -1,5 +1,6 @@
 pyrite
 - snapshot
+- snapshot:detail
 - snapshot:good
 - snapshot:bad
 - processor
