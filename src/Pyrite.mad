@@ -1,5 +1,7 @@
 import FilePath from "FilePath"
 import List from "List"
+import Test from "Test"
+import Wish from "Wish"
 
 import Log from "@/Log"
 import Snap from "@/Snapshot"
@@ -23,3 +25,30 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera
 )(key)
 export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
 export panhandle = createRecorder
+doBoth = (bod, success, inner) => do {
+  _ <- Test.assertEquals(bod, inner)
+  return Test.assertEquals(true, success)
+}
+export testSnapshot = (snap) => {
+  pth = Snap.path(snap)
+  bod = Snap.body(snap)
+  return Test.test(
+    "pyrite: " ++ pth,
+    () => pipe(
+      Log.env.test("processing snapshot"),
+      Snap.resnap,
+      Wish.mapRej(
+        where {
+          Snap.CannotWrite(p, actualBody) =>
+            Test.AssertionError(bod, actualBody)
+
+          Snap.CannotRead =>
+            Test.ErrorWithMessage("Cannot read: " ++ pth)
+        },
+      ),
+      map(Log.env.test("why good")),
+      Wish.mapRej(Log.env.test("why bad")),
+      chain(where { #[success, inner] => doBoth(bod, success, inner) }),
+    )(snap),
+  )
+}

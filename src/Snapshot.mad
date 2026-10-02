@@ -1,12 +1,8 @@
 import File from "File"
-import FilePath from "FilePath"
 import Fn from "Function"
-import Monad from "Monad"
 import String from "String"
 import Test from "Test"
 import Wish from "Wish"
-
-import Study from "Study"
 
 import _File from "@/File"
 import Log from "@/Log"
@@ -43,7 +39,7 @@ modbod = (fn, x, y) => pipe(
 )(y)
 equals :: String -> Snapshot -> Boolean
 export equals = modbod(Fn.equals)
-type FoolsError = CannotWrite(String, String) | CannotRead
+export type FoolsError = CannotWrite(String, String) | CannotRead
 ofPair = (a, b) => #[a, b]
 toFile :: Snapshot -> Wish FoolsError #[Boolean, String]
 export toFile = where {
@@ -90,31 +86,4 @@ export resnap = (snap) => do {
   } else {
     checkCorrect(snap)
   }
-}
-doBoth = (bod, success, inner) => do {
-  _ <- Test.assertEquals(bod, inner)
-  return Test.assertEquals(true, success)
-}
-export testSnapshot = (snap) => {
-  pth = path(snap)
-  bod = body(snap)
-  return Test.test(
-    "pyrite: " ++ pth,
-    () => pipe(
-      Log.env.test("processing snapshot"),
-      resnap,
-      Wish.mapRej(
-        where {
-          CannotWrite(p, actualBody) =>
-            Test.AssertionError(bod, actualBody)
-
-          CannotRead =>
-            Test.ErrorWithMessage("Cannot read: " ++ pth)
-        },
-      ),
-      map(Log.env.test("why good")),
-      Wish.mapRej(Log.env.test("why bad")),
-      chain(where { #[success, inner] => doBoth(bod, success, inner) }),
-    )(snap),
-  )
 }
