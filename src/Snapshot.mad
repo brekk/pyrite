@@ -13,7 +13,6 @@ import Log from "@/Log"
 
 
 
-type Existence = NotYetReal | Real(String)
 export type Snapshot = Snapshot(String, String)
 export create = Snapshot
 path :: Snapshot -> String
@@ -46,63 +45,64 @@ equals :: String -> Snapshot -> Boolean
 export equals = modbod(Fn.equals)
 type FoolsError = CannotWrite | CannotRead
 toFile :: Snapshot -> Wish FoolsError Boolean
-export toFile = where {
-  Snapshot(p, b) =>
-    pipe(
-      Log.env.snapshot("toFile"),
-      _File.writeFile($, b),
-      map(
-        pipe(
-          Fn.always(true),
-          Log.env.snapshotGood("matched"),
+export toFile = pipe(
+  Log.env.snapshot("toFile outer"),
+  where {
+    Snapshot(p, b) =>
+      pipe(
+        Log.env.snapshot("toFile"),
+        _File.writeFile($, b),
+        map(
+          pipe(
+            Fn.always(true),
+            Log.env.snapshotGood("matched"),
+          ),
         ),
-      ),
-      Wish.mapRej(
-        pipe(
-          Log.env.snapshotBad("failed to write"),
-          Fn.always(CannotWrite),
+        Wish.mapRej(
+          pipe(
+            Log.env.snapshotBad("failed to write"),
+            Fn.always(CannotWrite),
+          ),
         ),
-      ),
-    )(p)
-}
-// export toFile = toFileWithPathing(Fn.identity)
-fileEquals :: String -> Snapshot -> Wish FoolsError Boolean
-export fileEquals = (bod, snap) => pipe(
-  path,
-  _File.exists,
-  map(Log.env.snapshotGood("exists?")),
-  chain(
-    (yes) => yes
-      ? pipe(
-        path,
-        File.read,
-        Wish.mapRej(Fn.always(CannotRead)),
-        map(Fn.equals(bod)),
-      )(snap)
-      : Wish.good(false),
-  ),
-)(snap)
+      )(p)
+  },
+)
 sourceOfFileMatchesSnap = (bod, snap) => pipe(
   path,
   File.read,
   Wish.mapRej(Fn.always(CannotRead)),
-  map(Fn.equals(bod)),
+  map(
+    Fn.either(
+      // we have to test for the case where there's a trailing newline
+      pipe(
+        mappend($, "\n"),
+        Fn.equals(bod),
+      ),
+      Fn.equals(bod),
+    ),
+  ),
+)(snap)
+isConcrete = pipe(
+  path,
+  Log.env.snapshotDetail("checking path..."),
+  _File.exists,
+  map(Log.env.snapshotDetail("path exists?")),
+)
+checkCorrect :: Snapshot -> Wish FoolsError Boolean
+checkCorrect = (snap) => pipe(
+  sourceOfFileMatchesSnap(body(snap)),
 )(snap)
 // the core functionality of our module
 resnap :: Snapshot -> Wish FoolsError Boolean
 export resnap = (snap) => do {
-  bod = pipe(
-    body,
-    // File.write adds a trailing newline, apparently
-    mappend($, "\n"),
-  )(snap)
-  exists <- _File.exists(path(snap))
-  matches <- sourceOfFileMatchesSnap(bod, snap)
-  matches2 <- fileEquals(bod, snap)
+  exists <- isConcrete(snap)
   return if (!exists) {
-    Log.env.snapshot("doesn't exist, toFile it", toFile(snap))
+    pipe(
+      toFile,
+      Log.env.snapshot("doesn't exist, toFile it"),
+    )(snap)
   } else {
-    Wish.good(matches || matches2)
+    checkCorrect(snap)
   }
 }
 export testSnapshot = (snap) => {
@@ -110,6 +110,7 @@ export testSnapshot = (snap) => {
     "pyrite: " ++ path(snap) ++ " does not match snapshot",
     () => do {
       snapshotValid <- pipe(
+        Log.env.test("processing snapshot"),
         resnap,
         Wish.mapRej(
           pipe(

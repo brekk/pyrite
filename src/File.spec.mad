@@ -1,0 +1,17 @@
+import Test from "Test"
+
+import _File from "@/File"
+
+
+
+Test.test(
+  "File.exists",
+  () => do {
+    _ <- pipe(
+      _File.exists,
+      chain(Test.assertEquals(true)),
+    )("./madlib.json")
+    check <- _File.exists("./invalid-file-should-not-load.biz")
+    return Test.assertEquals(false, check)
+  },
+)

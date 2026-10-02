@@ -6,3 +6,5 @@ pyrite
 - processor
 - processor:detail
 - test 
+- test:detail
+- file
