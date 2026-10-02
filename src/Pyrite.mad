@@ -1,11 +1,5 @@
-import type { Wish } from "Wish"
-
 import FilePath from "FilePath"
-import Fn from "Function"
 import List from "List"
-import Test from "Test"
-
-import Exec from "study/Cli"
 
 import Log from "@/Log"
 import Snap from "@/Snapshot"
@@ -13,8 +7,6 @@ import _String from "@/String"
 
 
 
-export type PanHandle = Unseen | Inspected(String)
-export type Framed = Framed(PanHandle, Snap.Snapshot)
 createSnapshotWithBaseAndTransformer :: (String -> String)
   -> String
   -> ({} -> String)
@@ -31,19 +23,3 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera
 )(key)
 export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
 export panhandle = createRecorder
-
-/**
-import Pyrite from "Pyrite"
-import MyLibrary from "@/MyLibrary"
-
-createSnapshot = Pyrite.createRecorder("/golden")
-
-snapshot = createSnapshot(
-  "snapshotName",
-  MyLibrary.functionThatProducesAStringOutput,
-)
-
-
-
-
- */

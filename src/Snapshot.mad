@@ -43,43 +43,29 @@ modbod = (fn, x, y) => pipe(
 )(y)
 equals :: String -> Snapshot -> Boolean
 export equals = modbod(Fn.equals)
-type FoolsError = CannotWrite | CannotRead
-toFile :: Snapshot -> Wish FoolsError Boolean
-export toFile = pipe(
-  Log.env.snapshot("toFile outer"),
-  where {
-    Snapshot(p, b) =>
-      pipe(
-        Log.env.snapshot("toFile"),
-        _File.writeFile($, b),
-        map(
-          pipe(
-            Fn.always(true),
-            Log.env.snapshotGood("matched"),
-          ),
-        ),
-        Wish.mapRej(
-          pipe(
-            Log.env.snapshotBad("failed to write"),
-            Fn.always(CannotWrite),
-          ),
-        ),
-      )(p)
-  },
-)
+type FoolsError = CannotWrite(String, String) | CannotRead
+ofPair = (a, b) => #[a, b]
+toFile :: Snapshot -> Wish FoolsError #[Boolean, String]
+export toFile = where {
+  Snapshot(p, b) =>
+    pipe(
+      _File.writeFile($, b),
+      map(Fn.always(#[true, b])),
+      Wish.mapRej(Fn.always(CannotWrite(p, b))),
+    )(p)
+}
+addTrailingNewline = mappend($, "\n")
 sourceOfFileMatchesSnap = (bod, snap) => pipe(
   path,
   File.read,
   Wish.mapRej(Fn.always(CannotRead)),
   map(
-    Fn.either(
-      // we have to test for the case where there's a trailing newline
-      pipe(
-        mappend($, "\n"),
-        Fn.equals(bod),
-      ),
+    // we have to test for the case where there's a trailing newline
+    (v) => pipe(
+      addTrailingNewline,
       Fn.equals(bod),
-    ),
+      ofPair($, v),
+    )(v),
   ),
 )(snap)
 isConcrete = pipe(
@@ -88,38 +74,47 @@ isConcrete = pipe(
   _File.exists,
   map(Log.env.snapshotDetail("path exists?")),
 )
-checkCorrect :: Snapshot -> Wish FoolsError Boolean
-checkCorrect = (snap) => pipe(
-  sourceOfFileMatchesSnap(body(snap)),
-)(snap)
+checkCorrect :: Snapshot -> Wish FoolsError #[Boolean, String]
+checkCorrect = (snap) => {
+  bod = body(snap)
+  return pipe(
+    sourceOfFileMatchesSnap(bod),
+  )(snap)
+}
 // the core functionality of our module
-resnap :: Snapshot -> Wish FoolsError Boolean
+resnap :: Snapshot -> Wish FoolsError #[Boolean, String]
 export resnap = (snap) => do {
   exists <- isConcrete(snap)
   return if (!exists) {
-    pipe(
-      toFile,
-      Log.env.snapshot("doesn't exist, toFile it"),
-    )(snap)
+    toFile(snap)
   } else {
     checkCorrect(snap)
   }
 }
+doBoth = (bod, success, inner) => do {
+  _ <- Test.assertEquals(bod, inner)
+  return Test.assertEquals(true, success)
+}
 export testSnapshot = (snap) => {
+  pth = path(snap)
+  bod = body(snap)
   return Test.test(
-    "pyrite: " ++ path(snap) ++ " does not match snapshot",
-    () => do {
-      snapshotValid <- pipe(
-        Log.env.test("processing snapshot"),
-        resnap,
-        Wish.mapRej(
-          pipe(
-            Log.env.snapshotBad("post resnap, eat your heart out thanos"),
-            Fn.always(Test.ErrorWithMessage("Unable to load snapshot")),
-          ),
-        ),
-      )(snap)
-      return Test.assertEquals(true, snapshotValid)
-    },
+    "pyrite: " ++ pth,
+    () => pipe(
+      Log.env.test("processing snapshot"),
+      resnap,
+      Wish.mapRej(
+        where {
+          CannotWrite(p, actualBody) =>
+            Test.AssertionError(bod, actualBody)
+
+          CannotRead =>
+            Test.ErrorWithMessage("Cannot read: " ++ pth)
+        },
+      ),
+      map(Log.env.test("why good")),
+      Wish.mapRej(Log.env.test("why bad")),
+      chain(where { #[success, inner] => doBoth(bod, success, inner) }),
+    )(snap),
   )
 }
