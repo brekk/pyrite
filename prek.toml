@@ -19,7 +19,7 @@ hooks = [
   {
     id ="madlib-readme",
     name="madlib readme",
-    entry="pilcrow -i README.md --repo brekk/pyrite --auto",
+    entry="pilcrow --input README.md --repo brekk/pyrite --auto",
     language="system",
     files = "README\\.raw\\.md$|madlib\\.json$",
     verbose=true
