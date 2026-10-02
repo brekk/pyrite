@@ -19,7 +19,6 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera
   List.append($, [basePath]),
   FilePath.joinPath,
   pathTransformer,
-  Log.env.processorDetail("path processed"),
   Snap.create($, camera()),
   Log.env.processorDetail("snapshot"),
 )(key)
@@ -46,8 +45,6 @@ export testSnapshot = (snap) => {
             Test.ErrorWithMessage("Cannot read: " ++ pth)
         },
       ),
-      map(Log.env.test("why good")),
-      Wish.mapRej(Log.env.test("why bad")),
       chain(where { #[success, inner] => doBoth(bod, success, inner) }),
     )(snap),
   )
