@@ -8,11 +8,6 @@
 
   "dependencies": [
     {
-      "minVersion": "0.0.8",
-      "url": "https://github.com/brekk/study/archive/refs/tags/v0.0.8.zip",
-      "description": "Study"
-    },
-    {
       "minVersion": "0.3.1",
       "url": "https://github.com/brekk/party-bus/archive/refs/tags/v0.3.1.zip",
       "description": "PartyBus"
