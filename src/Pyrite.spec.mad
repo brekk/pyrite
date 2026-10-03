@@ -1,0 +1,36 @@
+import Test from "Test"
+import Wish from "Wish"
+
+import Pyrite from "@/Pyrite"
+import Snap from "@/Snapshot"
+
+
+
+snapshotter = Pyrite.createRecorder("./golden")
+Pyrite.testSnapshot(snapshotter("record of note", () => "saved!"))
+// just aliases
+Pyrite.test(Pyrite.panhandle("./golden", "record of note2", () => "saved!"))
+Test.test(
+  "Pyrite._handleError - cannot write",
+  () => pipe(
+    Pyrite._handleError("/path", "body massage"),
+    Wish.chainRej(
+      pipe(
+        show,
+        Test.assertEquals(`AssertionError("body massage", "no body massage")`),
+      ),
+    ),
+  )(Wish.bad(Snap.CannotWrite("/path", "no body massage"))),
+)
+Test.test(
+  "Pyrite._handleError - cannot read",
+  () => pipe(
+    Pyrite._handleError("/path", "body massage"),
+    Wish.chainRej(
+      pipe(
+        show,
+        Test.assertEquals(`ErrorWithMessage("Cannot read: /path")`),
+      ),
+    ),
+  )(Wish.bad(Snap.CannotRead)),
+)

@@ -1,0 +1,70 @@
+import FilePath from "FilePath"
+import Fn from "Function"
+import Process from "Process"
+import Test from "Test"
+import Wish from "Wish"
+
+import Log from "@/Log"
+import Snap from "@/Snapshot"
+
+
+
+Test.test(
+  "kitchen sink",
+  () => do {
+    snap = Snap.create("/yoyoyo", "test")
+    _ <- Test.assertEquals(Snap.setPath("/nonono", snap), Snap.create("/nonono", "test"))
+    _ <- Test.assertEquals(Snap.setBody("testify", snap), Snap.create("/yoyoyo", "testify"))
+    _ <- Test.assertEquals(Snap.equals("test\n", snap), true)
+    // _ <- Test.assertEquals(Wish.good(#[true, "test\n"]), Snap.toFile(snap))
+    return Test.assertEquals(
+      Snap._modbod((_subBod, _subSnap) => show(#[_subSnap, _subBod]), "testify", snap),
+      `#["` ++ "test" ++ "\\" ++ "n" ++ `", "testify"]`,
+    )
+  },
+)
+Test.test(
+  "Snapshot.toFile",
+  () => do {
+    snap = Snap.create("./golden/oreo.txt", "test")
+    return pipe(
+      Snap.toFile,
+      map(Log.env.test("yes?")),
+      Wish.mapRej(
+        pipe(
+          show,
+          Test.AssertionError("blah"),
+        ),
+      ),
+      chain(Test.assertEquals(#[true, "test\n"])),
+      Wish.chainRej(Fn.always(Test.assertEquals("unable to write file", "yes"))),
+    )(snap)
+  },
+)
+FIXTURE_FILE = "./silver/resnap.txt"
+FIXTURE_PATH = FilePath.parentPath(FIXTURE_FILE)
+beforeAll = () => pipe(
+  Process.exec("rm", ["-f", FIXTURE_FILE]),
+  map(Fn.always({})),
+)(Process.DEFAULT_COMMAND_OPTIONS)
+afterAll = () => pipe(
+  Process.exec("rm", ["-r", FIXTURE_PATH]),
+  map(Fn.always({})),
+)(Process.DEFAULT_COMMAND_OPTIONS)
+Test.test(
+  "Snapshot.resnap",
+  () => do {
+    snap = Snap.create(FIXTURE_FILE, "test")
+    return pipe(
+      Snap.resnap,
+      Wish.mapRej(
+        pipe(
+          show,
+          Test.AssertionError("blah"),
+        ),
+      ),
+      chain(Test.assertEquals(#[true, "test\n"])),
+      Wish.chainRej(Fn.always(Test.assertEquals("unable to write file", "yes"))),
+    )(snap)
+  },
+)

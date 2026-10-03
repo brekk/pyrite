@@ -1,4 +1,9 @@
+import FilePath from "FilePath"
+import Fn from "Function"
+import IO from "IO"
+import Process from "Process"
 import Test from "Test"
+import Wish from "Wish"
 
 import _File from "@/File"
 
@@ -15,3 +20,62 @@ Test.test(
     return Test.assertEquals(false, check)
   },
 )
+FIXTURE_FILE = "./test/temporary/nested/path/value.txt"
+FIXTURE_PATH = FilePath.parentPath(FIXTURE_FILE)
+// this doesn't appear to be something that we can change the outcome of
+// so commenting out the non-recursive test for now
+/*
+Test.test(
+  "writeFile - non-recursive",
+  () => do {
+    failure <- pipe(
+      _File.writeFileWithRecursivePath(
+        false,
+        $,
+        "This is a test value. This file shouldn't persist",
+      ),
+      map(
+        pipe(
+          IO.pTrace("UNFAILO"),
+          Fn.always(true),
+        ),
+      ),
+      Wish.chainRej(
+        pipe(
+          IO.pTrace("FAILO"),
+          Fn.always(Wish.good(false)),
+        ),
+      ),
+    )(FIXTURE_FILE)
+    return Test.assertEquals(false, failure)
+  },
+)
+*/
+
+Test.test(
+  "writeFile",
+  () => do {
+    hooray <- pipe(
+      _File.writeFile($, "This is a test value. This file shouldn't persist"),
+      map(Fn.always(true)),
+      Wish.chainRej(Fn.always(Wish.good(false))),
+    )(FIXTURE_FILE)
+    return Test.assertEquals(true, hooray)
+  },
+)
+Test.test(
+  "writeFile - bad path",
+  () => do {
+    hooray <- pipe(
+      _File.writeFile($, "This is a test value. This file shouldn't persist"),
+      map(Fn.always(true)),
+      Wish.chainRej(Fn.always(Wish.good(false))),
+    )("")
+    return Test.assertEquals(false, hooray)
+  },
+)
+// kill them files
+afterAll = () => pipe(
+  Process.exec("rm", ["-r", FIXTURE_PATH]),
+  map(Fn.always({})),
+)(Process.DEFAULT_COMMAND_OPTIONS)

@@ -13,7 +13,7 @@ import _String from "@/String"
 export type Snapshot = Snapshot(String, String)
 export create = (p, b) => pipe(
   // File.write adds a trailing newline, so our snapshot does too
-  _String.addNewline,
+  _String.ensureNewline,
   Snapshot(p),
 )(b)
 path :: Snapshot -> String
@@ -34,16 +34,16 @@ export setPath = (p, sn) => where(sn) {
 setBody :: String -> Snapshot -> Snapshot
 export setBody = (b, sn) => where(sn) {
   Snapshot(p, _) =>
-    Snapshot(p, b)
+    Snapshot(p, _String.ensureNewline(b))
 }
 // binary function application
-modbod :: (String -> String -> a) -> String -> Snapshot -> a
-modbod = (fn, x, y) => pipe(
+_modbod :: (String -> String -> a) -> String -> Snapshot -> a
+export _modbod = (fn, x, y) => pipe(
   body,
   fn(x),
 )(y)
 equals :: String -> Snapshot -> Boolean
-export equals = modbod(Fn.equals)
+export equals = _modbod(Fn.equals)
 export type FoolsError = CannotWrite(String, String) | CannotRead
 ofPair = (a, b) => #[a, b]
 toFile :: Snapshot -> Wish FoolsError #[Boolean, String]

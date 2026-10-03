@@ -27,6 +27,16 @@ snapshotAssertion = (bod, #[success, inner]) => do {
   return Test.assertEquals(bod, inner)
   // return Test.assertEquals(true, success)
 }
+_handleError :: String -> String -> Wish Snap.FoolsError a -> Wish Test.AssertionError a
+export _handleError = (pth, bod, w) => Wish.mapRej(
+  where {
+    Snap.CannotWrite(p, actualBody) =>
+      Test.AssertionError(bod, actualBody)
+
+    Snap.CannotRead =>
+      Test.ErrorWithMessage("Cannot read: " ++ pth)
+  },
+)(w)
 export testSnapshot = (snap) => {
   pth = Snap.path(snap)
   bod = Snap.body(snap)
@@ -35,15 +45,7 @@ export testSnapshot = (snap) => {
     () => pipe(
       Log.env.test("processing snapshot"),
       Snap.resnap,
-      Wish.mapRej(
-        where {
-          Snap.CannotWrite(p, actualBody) =>
-            Test.AssertionError(bod, actualBody)
-
-          Snap.CannotRead =>
-            Test.ErrorWithMessage("Cannot read: " ++ pth)
-        },
-      ),
+      _handleError(pth, bod),
       chain(snapshotAssertion(bod)),
     )(snap),
   )

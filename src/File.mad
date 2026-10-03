@@ -23,6 +23,7 @@ export writeFileWithRecursivePath = (recursive, filePath, body) => pipe(
   ),
   chain(
     (_) => pipe(
+      Log.env.file("Writing to path"),
       File.write(filePath),
       Wish.mapRej(
         pipe(
