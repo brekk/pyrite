@@ -9,3 +9,4 @@ export slug = pipe(
   String.toLower,
   String.replace(NON_WORD_AND_SPACES, "-"),
 )
+export addNewline = mappend($, "\n")

@@ -1,16 +1,21 @@
 import File from "File"
 import Fn from "Function"
 import String from "String"
-import Test from "Test"
 import Wish from "Wish"
 
 import _File from "@/File"
 import Log from "@/Log"
+import _String from "@/String"
 
 
 
+// Snapshot(pathToEventualFile, body)
 export type Snapshot = Snapshot(String, String)
-export create = Snapshot
+export create = (p, b) => pipe(
+  // File.write adds a trailing newline, so our snapshot does too
+  _String.addNewline,
+  Snapshot(p),
+)(b)
 path :: Snapshot -> String
 export path = where {
   Snapshot(p, _) =>
@@ -50,38 +55,36 @@ export toFile = where {
       Wish.mapRej(Fn.always(CannotWrite(p, b))),
     )(p)
 }
-addTrailingNewline = mappend($, "\n")
-sourceOfFileMatchesSnap = (bod, snap) => pipe(
+sourceOfFileMatchesSnap :: String -> Snapshot -> Wish FoolsError #[Boolean, String]
+export sourceOfFileMatchesSnap = (bod, snap) => pipe(
   path,
   File.read,
   Wish.mapRej(Fn.always(CannotRead)),
   map(
-    // we have to test for the case where there's a trailing newline
     (v) => pipe(
-      addTrailingNewline,
       Fn.equals(bod),
       ofPair($, v),
     )(v),
   ),
 )(snap)
-isConcrete = pipe(
+exists :: Snapshot -> Wish a Boolean
+export exists = pipe(
   path,
-  Log.env.snapshotDetail("checking path..."),
   _File.exists,
-  map(Log.env.snapshotDetail("path exists?")),
 )
 checkCorrect :: Snapshot -> Wish FoolsError #[Boolean, String]
-checkCorrect = (snap) => {
+export checkCorrect = (snap) => {
   bod = body(snap)
   return pipe(
     sourceOfFileMatchesSnap(bod),
   )(snap)
 }
 // the core functionality of our module
+// infinity gauntlet, thrown
 resnap :: Snapshot -> Wish FoolsError #[Boolean, String]
 export resnap = (snap) => do {
-  exists <- isConcrete(snap)
-  return if (!exists) {
+  e <- exists(snap)
+  return if (!e) {
     toFile(snap)
   } else {
     checkCorrect(snap)

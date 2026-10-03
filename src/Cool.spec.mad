@@ -3,4 +3,4 @@ import Pyrite from "@/Pyrite"
 
 
 snapshotter = Pyrite.createRecorder("./golden")
-Pyrite.testSnapshot(snapshotter(() => "saved!", "record of note"))
+Pyrite.testSnapshot(snapshotter("record of note", () => "saved!"))

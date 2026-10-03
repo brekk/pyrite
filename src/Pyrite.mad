@@ -11,10 +11,10 @@ import _String from "@/String"
 
 createSnapshotWithBaseAndTransformer :: (String -> String)
   -> String
-  -> ({} -> String)
   -> String
+  -> ({} -> String)
   -> Snap.Snapshot
-export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera, key) => pipe(
+export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, key, camera) => pipe(
   _String.slug,
   List.append($, [basePath]),
   FilePath.joinPath,
@@ -23,10 +23,9 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, camera
   Log.env.processorDetail("snapshot"),
 )(key)
 export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
-export panhandle = createRecorder
-doBoth = (bod, success, inner) => do {
-  _ <- Test.assertEquals(bod, inner)
-  return Test.assertEquals(true, success)
+snapshotAssertion = (bod, #[success, inner]) => do {
+  return Test.assertEquals(bod, inner)
+  // return Test.assertEquals(true, success)
 }
 export testSnapshot = (snap) => {
   pth = Snap.path(snap)
@@ -45,7 +44,10 @@ export testSnapshot = (snap) => {
             Test.ErrorWithMessage("Cannot read: " ++ pth)
         },
       ),
-      chain(where { #[success, inner] => doBoth(bod, success, inner) }),
+      chain(snapshotAssertion(bod)),
     )(snap),
   )
 }
+// because it's fun to be fun!
+export panhandle = createRecorder
+export test = testSnapshot
