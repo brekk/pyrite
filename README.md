@@ -3,7 +3,7 @@
 golden / snapshot tests in `madlib`
 
 [![Madlib Project Badge](https://img.shields.io/badge/madlib-purple?logo=github&logoSize=auto)](//github.com/madlib-lang/madlib) <!-- $MADLIB.projectBadge -->
-[![pyrite v0.0.1](https://img.shields.io/badge/v0.0.1-purple?label=version)](//github.com/brekk/pyrite) <!-- $MADLIB.json.version -->
+[![pyrite v1.0.0](https://img.shields.io/badge/v1.0.0-purple?label=version)](//github.com/brekk/pyrite) <!-- $MADLIB.json.version -->
 
 ---
 
