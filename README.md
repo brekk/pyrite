@@ -18,7 +18,7 @@ import Snapshot from "Pyrite/Snapshot"
 serialize = () => "saved!"
 
 snapshotter = Pyrite.createRecorder("./golden")
-Snapshot.testSnapshot(snapshotter(serialize, "record of note"))
+Snapshot.testSnapshot(snapshotter("record of note", serialize))
 ```
 
 This basically tells Pyrite to create a new file store in `./golden`, and to create a `record of note` file (currently slugged and turned into `record-of-note.golden.txt`) with the body of that file `saved!`. We can add this `./golden` folder to our version control (recommended!) and continue developing.
