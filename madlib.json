@@ -4,12 +4,5 @@
   "main": "src/Pyrite.mad",
   "importAliases": {
     ".": "src"
-  },
-  "dependencies": [
-    {
-      "minVersion": "0.3.1",
-      "url": "https://github.com/brekk/party-bus/archive/refs/tags/v0.3.1.zip",
-      "description": "PartyBus"
-    }
-  ]
+  }
 }

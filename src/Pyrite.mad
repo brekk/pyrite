@@ -3,7 +3,6 @@ import List from "List"
 import Test from "Test"
 import Wish from "Wish"
 
-import Log from "@/Log"
 import Snap from "@/Snapshot"
 import _String from "@/String"
 
@@ -20,7 +19,6 @@ export createSnapshotWithBaseAndTransformer = (pathTransformer, basePath, key, c
   FilePath.joinPath,
   pathTransformer,
   Snap.create($, camera()),
-  Log.env.processorDetail("snapshot"),
 )(key)
 export createRecorder = createSnapshotWithBaseAndTransformer(mappend($, ".golden.txt"))
 snapshotAssertion = (bod, #[success, inner]) => do {
@@ -43,7 +41,6 @@ export testSnapshot = (snap) => {
   return Test.test(
     "pyrite: " ++ pth,
     () => pipe(
-      Log.env.test("processing snapshot"),
       Snap.resnap,
       _handleError(pth, bod),
       chain(snapshotAssertion(bod)),

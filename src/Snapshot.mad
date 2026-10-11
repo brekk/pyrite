@@ -4,7 +4,6 @@ import String from "String"
 import Wish from "Wish"
 
 import _File from "@/File"
-import Log from "@/Log"
 import _String from "@/String"
 
 

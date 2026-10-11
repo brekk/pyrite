@@ -4,7 +4,6 @@ import Process from "Process"
 import Test from "Test"
 import Wish from "Wish"
 
-import Log from "@/Log"
 import Snap from "@/Snapshot"
 
 
@@ -29,7 +28,6 @@ Test.test(
     snap = Snap.create("./golden/oreo.txt", "test")
     return pipe(
       Snap.toFile,
-      map(Log.env.test("yes?")),
       Wish.mapRej(
         pipe(
           show,

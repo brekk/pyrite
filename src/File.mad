@@ -6,28 +6,26 @@ import Path from "FilePath"
 import Fn from "Function"
 import Wish from "Wish"
 
-import Log from "@/Log"
-
 
 
 writeFileWithRecursivePath :: Boolean -> String -> String -> Wish String String
 export writeFileWithRecursivePath = (recursive, filePath, body) => pipe(
   Path.parentPath,
-  Log.env.file("creating path..."),
+  // Log.env.file("creating path..."),
   Dir.create($, { recursive }),
   Wish.mapRej(
     pipe(
-      Log.env.file("Failed to create path!"),
+      // Log.env.file("Failed to create path!"),
       Fn.always("Unable to create directory"),
     ),
   ),
   chain(
     (_) => pipe(
-      Log.env.file("Writing to path"),
+      // Log.env.file("Writing to path"),
       File.write(filePath),
       Wish.mapRej(
         pipe(
-          Log.env.file("Failed to write file!"),
+          // Log.env.file("Failed to write file!"),
           Fn.always("Unable to write file"),
         ),
       ),
@@ -37,9 +35,9 @@ export writeFileWithRecursivePath = (recursive, filePath, body) => pipe(
 )(filePath)
 export writeFile = writeFileWithRecursivePath(true)
 export exists = (p) => pipe(
-  Log.env.file(`exists?`),
+  // Log.env.file(`exists?`),
   File.exists,
-  Wish.mapRej(Log.env.file("doesn't exist " ++ p)),
+  // Wish.mapRej(Log.env.file("doesn't exist " ++ p)),
   Wish.chainRej(Fn.always(Wish.good(false))),
-  map(Log.env.file("resolved? " ++ p)),
+  // map(Log.env.file("resolved? " ++ p)),
 )(p)
