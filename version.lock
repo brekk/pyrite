@@ -1,5 +1,5 @@
 {
-  "buildHash": "de58bede955462f64ebd6e32eeb65270",
+  "buildHash": "448ae1359c5c06874abf903f5f882527",
   "jsApi": {
     "apiInstances": [],
     "apiAliases": {},
@@ -14,10 +14,8 @@
       "src/Snapshot.mad#setPath": "String -> Snapshot -> Snapshot",
       "src/String.mad#ensureNewline": "String -> String",
       "createRecorder": "String -> String -> ({} -> String) -> Snapshot",
-      "src/Log.mad#tags": "{ file :: Tag, processor :: Tag, processorDetail :: Tag, pyrite :: Tag, snapshot :: Tag, snapshotBad :: Tag, snapshotDetail :: Tag, snapshotGood :: Tag, test :: Tag, testDetail :: Tag }",
       "src/File.mad#writeFileWithRecursivePath": "Boolean -> String -> String -> Wish String String",
       "src/File.mad#writeFile": "String -> String -> Wish String String",
-      "src/Log.mad#env": "(Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j) => { file :: String -> a -> a, processor :: String -> e -> e, processorDetail :: String -> d -> d, pyrite :: String -> j -> j, snapshot :: String -> i -> i, snapshotBad :: String -> f -> f, snapshotDetail :: String -> h -> h, snapshotGood :: String -> g -> g, test :: String -> c -> c, testDetail :: String -> b -> b }",
       "src/Snapshot.mad#toFile": "Snapshot -> Wish FoolsError #[Boolean, String]",
       "src/String.mad#addNewline": "String -> String",
       "_handleError": "String -> String -> Wish FoolsError a -> Wish AssertionError a",
@@ -27,7 +25,6 @@
       "src/Snapshot.mad#setBody": "String -> Snapshot -> Snapshot",
       "src/Snapshot.mad#_modbod": "(String -> String -> a) -> String -> Snapshot -> a",
       "src/String.mad#slug": "String -> String",
-      "src/Log.mad#tapped": "(Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j) => { file :: String -> (k -> a) -> k -> k, processor :: String -> (l -> e) -> l -> l, processorDetail :: String -> (m -> d) -> m -> m, pyrite :: String -> (n -> j) -> n -> n, snapshot :: String -> (o -> i) -> o -> o, snapshotBad :: String -> (p -> f) -> p -> p, snapshotDetail :: String -> (q -> h) -> q -> q, snapshotGood :: String -> (r -> g) -> r -> r, test :: String -> (s -> c) -> s -> s, testDetail :: String -> (t -> b) -> t -> t }",
       "panhandle": "String -> String -> ({} -> String) -> Snapshot",
       "src/Snapshot.mad#sourceOfFileMatchesSnap": "String -> Snapshot -> Wish FoolsError #[Boolean, String]",
       "src/Snapshot.mad#body": "Snapshot -> String",
@@ -57,10 +54,8 @@
       "src/Snapshot.mad#setPath": "String -> Snapshot -> Snapshot",
       "src/String.mad#ensureNewline": "String -> String",
       "createRecorder": "String -> String -> ({} -> String) -> Snapshot",
-      "src/Log.mad#tags": "{ file :: Tag, processor :: Tag, processorDetail :: Tag, pyrite :: Tag, snapshot :: Tag, snapshotBad :: Tag, snapshotDetail :: Tag, snapshotGood :: Tag, test :: Tag, testDetail :: Tag }",
       "src/File.mad#writeFileWithRecursivePath": "Boolean -> String -> String -> Wish String String",
       "src/File.mad#writeFile": "String -> String -> Wish String String",
-      "src/Log.mad#env": "(Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j) => { file :: String -> a -> a, processor :: String -> e -> e, processorDetail :: String -> d -> d, pyrite :: String -> j -> j, snapshot :: String -> i -> i, snapshotBad :: String -> f -> f, snapshotDetail :: String -> h -> h, snapshotGood :: String -> g -> g, test :: String -> c -> c, testDetail :: String -> b -> b }",
       "src/Snapshot.mad#toFile": "Snapshot -> Wish FoolsError #[Boolean, String]",
       "src/String.mad#addNewline": "String -> String",
       "_handleError": "String -> String -> Wish FoolsError a -> Wish AssertionError a",
@@ -70,7 +65,6 @@
       "src/Snapshot.mad#setBody": "String -> Snapshot -> Snapshot",
       "src/Snapshot.mad#_modbod": "(String -> String -> a) -> String -> Snapshot -> a",
       "src/String.mad#slug": "String -> String",
-      "src/Log.mad#tapped": "(Show a, Show b, Show c, Show d, Show e, Show f, Show g, Show h, Show i, Show j) => { file :: String -> (k -> a) -> k -> k, processor :: String -> (l -> e) -> l -> l, processorDetail :: String -> (m -> d) -> m -> m, pyrite :: String -> (n -> j) -> n -> n, snapshot :: String -> (o -> i) -> o -> o, snapshotBad :: String -> (p -> f) -> p -> p, snapshotDetail :: String -> (q -> h) -> q -> q, snapshotGood :: String -> (r -> g) -> r -> r, test :: String -> (s -> c) -> s -> s, testDetail :: String -> (t -> b) -> t -> t }",
       "panhandle": "String -> String -> ({} -> String) -> Snapshot",
       "src/Snapshot.mad#sourceOfFileMatchesSnap": "String -> Snapshot -> Wish FoolsError #[Boolean, String]",
       "src/Snapshot.mad#body": "Snapshot -> String",
@@ -86,5 +80,5 @@
       ]
     }
   },
-  "versionHash": "47cd76e43f74bbc2e1baaf194d07e1fa"
+  "versionHash": "d233662f9c26d1a06118c93ef2fd1de9"
 }
